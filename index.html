@@ -21,33 +21,15 @@
     <span style="margin-left:40px;">Audio Duration: </span>
     <span id = 'duration'>0</span>
 </div>
-    <div style="width:45%; display:inline-block; background-color:lightgray; padding:15px;">
-<h2>Playing Audio</h2>
-<p>To play a specific portion of an audio file, you can specify the starting 
-    and ending points. For instance, if you want to play the audio from the 
-    10th to the 20th second, simply input "10" as the starting point and "20" 
-    as the ending point, and then click the "Play" button.
-</p>
-    <label>Starting Point</label>
-    <br/>
-    <input id = "start1" type="text"/>
-    <br/>
-    <br/>
-    <label>Ending Point</label>
-    <br/>
-    <input id = "end1" type="text"/>
-    <br/>
-    <br/>
-    <button id ="play" onclick="play()">Play</button>
-    </div>
 
-    <div style="width:45%; display:inline-block; background-color:lightblue;padding:15px;">
-    <h2>Cutting and Trimming</h2>
+    <div style=" background-color:lightblue;padding:30px;">
+    <h2>Playing, Cutting and Trimming Audio</h2>
 
-    <p>To Cut or Trim an audio file, you can specify the starting 
-        and ending points. For instance, if you want to Cut or Trim the audio from the 
+    <p>To Play, Cut or Trim an audio file, you can specify the starting 
+        and ending points. For instance, if you want to Play, Cut or Trim the audio from the 
         10th to the 20th second, simply input "10" as the starting point and "20" 
-        as the ending point, and then click the "Cut or Trim" button.
+        as the ending point, and then click the "Play, Cut or Trim" button. Just export the file by clicking 
+        on "Export button" in MP3 format after you finish editing.
     </p>
 <label>Starting Point</label>
 <br/>
@@ -60,11 +42,10 @@
 <br/>
 <br/>
 
-
-
-    <button id ="trim1" onclick="trim()">Trim</button>
-    <button id="cut1" onclick="cut()">Cut</button>
-    <button id="exportdata1" onclick="exportdata()">Export</button>
+<button id ="play" onclick="play()">Play</button>
+<button id ="trim1" onclick="trim()">Trim</button>
+<button id="cut1" onclick="cut()">Cut</button>
+<button id="exportdata1" onclick="exportdata()">Export</button>
 
 </div>
     <h2>How to Use</h2>
@@ -170,8 +151,8 @@ function play(){
 
     clearInterval(intervalid);
     
-    var start = parseInt(document.getElementById("start1").value);
-var end = parseInt(document.getElementById("end1").value);
+    var start = parseInt(document.getElementById("start").value);
+var end = parseInt(document.getElementById("end").value);
 time = start;
     if(source){
         source.stop();
