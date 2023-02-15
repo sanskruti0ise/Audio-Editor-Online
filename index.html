@@ -126,7 +126,7 @@ var array1 = new Float32Array(array);
        source.buffer=audiobuffer;
        source.connect(audiocontext.destination);
        source.start(0);
-       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+       document.getElementById("duration").innerHTML = source.buffer.duration;
 
    
 intervalid =   setInterval(()=>{
@@ -156,9 +156,12 @@ function play(){
 
     clearInterval(intervalid);
     
-    var start = parseInt(document.getElementById("start").value);
-var end = parseInt(document.getElementById("end").value);
-time = start;
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
+
+time = parseInt(start);
+
+document.getElementById("timer").innerHTML = time;
 var final = end - start;
     if(source){
         source.stop();
@@ -183,29 +186,29 @@ var final = end - start;
          source.buffer=audiobuffer;
          source.connect(audiocontext.destination);
          source.start(0, start, final);
-         document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+         document.getElementById("duration").innerHTML = source.buffer.duration;
      
-
+if (parseInt(start) != parseInt(end)){
 intervalid =   setInterval(()=>{
     
     time++;
     document.getElementById("timer").innerHTML = time;
 
-    if (time === end){
+    if (time === parseInt(end)){
         clearInterval(intervalid);
     }
 
 }, 1000);
-
+    
     }
   }
-
+}
 
 function trim(){
 
     clearInterval(intervalid);
-    var start = parseInt(document.getElementById("start").value);
-var end = parseInt(document.getElementById("end").value);
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
 time=0;
 var final = end - start;
 
@@ -214,7 +217,7 @@ var final = end - start;
         source.stop();
     }
 
-
+    document.getElementById("timer").innerHTML = time;
     if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
     isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <= 0
     ){
@@ -222,12 +225,14 @@ var final = end - start;
 
         
     }
-else if (start === 0 && end === parseInt(source.buffer.duration)){
-    console.log ("array length is not valid")
-}
-    else{
-        array.splice(start*audiocontext.sampleRate, final*audiocontext.sampleRate);
 
+    else if (final === source.buffer.duration){
+        console.log("no data in array");
+    }
+    else{
+        array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
+
+       
 source = audiocontext.createBufferSource();
 
 var array1 = new Float32Array(array);
@@ -238,8 +243,8 @@ ab1.set(array);
    source.buffer=audiobuffer;
    source.connect(audiocontext.destination);
    source.start(0);
-   document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
-
+   document.getElementById("duration").innerHTML = source.buffer.duration;
+   if ( source.buffer.duration >=1){
 intervalid =   setInterval(()=>{
     time++;
 document.getElementById("timer").innerHTML = time;
@@ -247,7 +252,7 @@ if (time === parseInt(source.buffer.duration)){
     clearInterval(intervalid);
 }
 }, 1000);
-
+   }
 }}
 
 
@@ -256,14 +261,14 @@ function cut(){
 
 
 clearInterval(intervalid);
-    var start = parseInt(document.getElementById("start").value);
-var end = parseInt(document.getElementById("end").value);
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
 
 time=0;
     if(source){
         source.stop();
     }
-   
+    document.getElementById("timer").innerHTML = time;
   
     if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
     isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <=0
@@ -273,7 +278,7 @@ time=0;
 
     else{
 
-        var array1 =   array.slice(start*audiocontext.sampleRate, end*audiocontext.sampleRate);
+        var array1 =   array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
 array = array1;
 
@@ -291,8 +296,11 @@ ab1.set(array);
       source.buffer=audiobuffer;
       source.connect(audiocontext.destination);
       source.start(0);
-      document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
-   
+      document.getElementById("duration").innerHTML = source.buffer.duration;
+   if (source.buffer.duration<1){
+
+   }
+   else{
 intervalid =   setInterval(()=>{
        time++;
    document.getElementById("timer").innerHTML = time;
@@ -301,7 +309,7 @@ intervalid =   setInterval(()=>{
    }
 }, 1000);
     }
-
+}
 
 
     
