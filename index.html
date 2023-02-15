@@ -144,8 +144,12 @@ intervalid =   setInterval(()=>{
   
  } 
  var Files= document.getElementById("file").files
+ file = Files[0];
+ if (file){
   fr.readAsArrayBuffer(Files[0]);
+}
 
+document.getElementById("file").value = '';
 }
 
 function play(){
