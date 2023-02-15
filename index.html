@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This is free online Audio Editor. The audio editor can 
+    perform audio files merging/joining, trimming and cutting audio.">
+    <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
+    <title>Free Audio Editor</title>
+</head>
+<body>
+    <a href="speechtotext.html">Speech to Text </a>
+    <h1>Free Audio Editor</h1>
+    <input id = "file" type="file" onchange="myFunction()"/>
+    <br/>
+    <br/>
+    <div>
+    <span>Audio Time: </span>
+    <span id = 'timer'>0</span>
+    <span style="margin-left:40px;">Audio Duration: </span>
+    <span id = 'duration'>0</span>
+</div>
+    <div style="width:45%; display:inline-block; background-color:lightgray; padding:15px;">
+<h2>Playing Audio</h2>
+<p>To play a specific portion of an audio file, you can specify the starting 
+    and ending points. For instance, if you want to play the audio from the 
+    10th to the 20th second, simply input "10" as the starting point and "20" 
+    as the ending point, and then click the "Play" button.
+</p>
+    <label>Starting Point</label>
+    <br/>
+    <input id = "start1" type="text"/>
+    <br/>
+    <br/>
+    <label>Ending Point</label>
+    <br/>
+    <input id = "end1" type="text"/>
+    <br/>
+    <br/>
+    <button id ="play" onclick="play()">Play</button>
+    </div>
+
+    <div style="width:45%; display:inline-block; background-color:lightblue;padding:15px;">
+    <h2>Cutting and Trimming</h2>
+
+    <p>To Cut or Trim an audio file, you can specify the starting 
+        and ending points. For instance, if you want to Cut or Trim the audio from the 
+        10th to the 20th second, simply input "10" as the starting point and "20" 
+        as the ending point, and then click the "Cut or Trim" button.
+    </p>
+<label>Starting Point</label>
+<br/>
+<input id = "start" type="text"/>
+<br/>
+<br/>
+<label>Ending Point</label>
+<br/>
+<input id = "end" type="text"/>
+<br/>
+<br/>
+
+
+
+    <button id ="trim1" onclick="trim()">Trim</button>
+    <button id="cut1" onclick="cut()">Cut</button>
+    <button id="exportdata1" onclick="exportdata()">Export</button>
+
+</div>
+    <h2>How to Use</h2>
+<p>To use this app, you need to select an audio file by clicking "Choose File". After selecting the file, put the starting and ending points. The starting point is the starting value in seconds from where you want to cut or trim the audio, and the ending point is the ending value in seconds.
+After providing the starting and ending points, you have two options: trim or cut the audio.
+
+</p>
+<h3>Difference between Trim and Cut</h3>
+<p>Trimming means removing a specific part of the audio. For example, if your audio is 60 seconds long, and you want to trim 10 seconds in the middle, let's say you want to trim the audio from 10 seconds to 20 seconds. The trimming operation will remove the audio from 10 seconds to 20 seconds and save the rest of the audio.
+</p>
+<p>Cutting audio means you will get a specific part of the audio. For example, if you want to cut the audio from 10 seconds to 20 seconds, the cutting operation will return an audio file containing the audio between 10 seconds to 20 seconds.
+</p>
+
+
+<h3>Audio files Merging/Joining</h3>
+
+<p>
+    This application has the capability to join or merge multiple audio files together. 
+    To accomplish this task, all you have to do is select the audio files you want to 
+    combine. Simply press the "Choose file" button to pick a new file, and it will 
+    automatically be added to the previously selected file.
+</p>
+
+<h3>Exporting Audio</h3>
+<p>Once you done editing you can export file into and mp3 format by clicking "Export" button</p>
+<p>Report any problem at <span style="color:blue;">contact@musk-technology.com</span></p>
+    <script>
+
+        var array = [];
+        var audiocontext;
+        var source;
+        var time=0;
+        let intervalid;
+        var inid1 = null;
+        var inid2;
+        var inid3;
+
+function myFunction() {
+
+
+    if (intervalid){
+        clearInterval(intervalid);
+    }
+
+    if (inid1){
+        clearInterval(inid1);
+    }
+
+    if (inid2){
+        clearInterval(inid2);
+    }
+
+    if (inid3){
+        clearInterval(inid3);
+    }
+
+    if (audiocontext === undefined){
+ 
+ audiocontext= new AudioContext();
+}
+
+
+if (source){
+ source.stop();
+    
+}
+
+ const fr = new FileReader();
+
+ fr.onload = function(){
+  
+   audiocontext.decodeAudioData(fr.result, function(audiofile){
+    var x = audiofile.getChannelData(0);
+    var y = Array.from(x);
+    array = array.concat(y);
+    source = audiocontext.createBufferSource();
+
+    time = 0;
+  intervalid =   setInterval(()=>{
+        time++;
+    document.getElementById("timer").innerHTML = time;
+    
+}, 1000);
+
+   
+    
+    
+
+
+
+   
+var array1 = new Float32Array(array);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+    var ab1=  audiobuffer.getChannelData(0);
+ ab1.set(array);
+       
+       source.buffer=audiobuffer;
+       source.connect(audiocontext.destination);
+       source.start(0);
+       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+
+       source.addEventListener('ended', () => {
+        clearInterval(intervalid);
+});
+       
+    
+   });
+
+  
+ } 
+ var Files= document.getElementById("file").files
+  fr.readAsArrayBuffer(Files[0]);
+
+}
+
+function play(){
+
+    clearInterval(inid1);
+    
+    var start = parseInt(document.getElementById("start1").value);
+var end = parseInt(document.getElementById("end1").value);
+time = start;
+    if(source){
+        source.stop();
+    }
+
+    if (intervalid){
+        clearInterval(intervalid);
+    }
+
+    if (inid2){
+        clearInterval(inid2);
+    }
+
+    if (inid3){
+        clearInterval(inid3);
+    }
+
+  
+
+
+
+var final = end - start;
+   
+
+    source = audiocontext.createBufferSource();
+  
+  var array1 = new Float32Array(array);
+      var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+      var ab1=  audiobuffer.getChannelData(0);
+   ab1.set(array);
+
+ 
+         
+         source.buffer=audiobuffer;
+         source.connect(audiocontext.destination);
+         source.start(0, start, final);
+         document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+     
+
+inid1 =   setInterval(()=>{
+    
+    time++;
+    document.getElementById("timer").innerHTML = time;
+
+    if (time === end){
+        clearInterval(inid1);
+    }
+
+}, 1000);
+
+
+}
+
+
+function trim(){
+    clearInterval(inid2);
+    var start = parseInt(document.getElementById("start").value);
+var end = parseInt(document.getElementById("end").value);
+time=0;
+if (intervalid){
+        clearInterval(intervalid);
+    }
+
+    if (inid1){
+        clearInterval(inid1);
+    }
+
+    if (inid3){
+        clearInterval(inid3);
+    }
+
+
+  
+    
+    
+
+
+
+
+
+
+
+var final = end - start;
+    if(source){
+        source.stop();
+    }
+
+
+    array.splice(start*audiocontext.sampleRate, final*audiocontext.sampleRate);
+
+    source = audiocontext.createBufferSource();
+  
+var array1 = new Float32Array(array);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+    var ab1=  audiobuffer.getChannelData(0);
+ ab1.set(array);
+       
+       source.buffer=audiobuffer;
+       source.connect(audiocontext.destination);
+       source.start(0);
+       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+
+inid2 =   setInterval(()=>{
+        time++;
+    document.getElementById("timer").innerHTML = time;
+    if (time === parseInt(source.buffer.duration)){
+        clearInterval(inid2);
+    }
+}, 1000);
+      
+}
+
+
+function cut(){
+
+
+clearInterval(inid3);
+    var start = parseInt(document.getElementById("start").value);
+var end = parseInt(document.getElementById("end").value);
+
+time=0;
+    if(source){
+        source.stop();
+    }
+    if (intervalid){
+        clearInterval(intervalid);
+    }
+
+    if (inid1){
+        clearInterval(inid1);
+    }
+
+    if (inid2){
+        clearInterval(inid2);
+    }
+
+  
+
+    
+    
+
+
+
+
+ var array1 =   array.slice(start*audiocontext.sampleRate, end*audiocontext.sampleRate);
+
+ array = array1;
+
+    source = audiocontext.createBufferSource();
+   
+var array1 = new Float32Array(array);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+    var ab1=  audiobuffer.getChannelData(0);
+ ab1.set(array);
+       
+       source.buffer=audiobuffer;
+       source.connect(audiocontext.destination);
+       source.start(0);
+       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+    
+inid3 =   setInterval(()=>{
+        time++;
+    document.getElementById("timer").innerHTML = time;
+    if (time === parseInt(source.buffer.duration)){
+        clearInterval(inid3);
+    }
+}, 1000);
+
+}
+
+
+
+ function exportdata(){
+
+
+ 
+       
+        var mp3Data = [];
+
+var samples = new Int16Array(array.length);
+
+var j = 0;
+  for (var i = 0; i < array.length; i++) {
+    samples[j++] = (array[i] * 0x7FFF);
+  }
+var mp3encoder = new lamejs.Mp3Encoder(1, source.buffer.sampleRate, 128);
+ var mp3Tmp = mp3encoder.encodeBuffer(samples);
+ mp3Data.push(mp3Tmp);
+
+ const blob = new Blob(mp3Data, { type: "audio/mp3" });
+  const audioURL = window.URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = audioURL;
+  a.download = "downloaded.mp3";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+    
+  
+}
+    </script>
+</body>
+</html>
