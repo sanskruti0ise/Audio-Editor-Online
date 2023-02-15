@@ -133,7 +133,7 @@ intervalid =   setInterval(()=>{
         time++;
     document.getElementById("timer").innerHTML = time;
 
-    if (time ===source.buffer.duration){
+    if (time ===parseInt(source.buffer.duration)){
         clearInterval(intervalid);
     }
     
