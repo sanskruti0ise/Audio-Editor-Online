@@ -10,8 +10,9 @@
     <title>Free Audio Editor</title>
 </head>
 <body>
+
     <a href="speechtotext.html">Speech to Text </a>
-    <h1>Free Audio Editor</h1>
+    <h1>Free Online Audio Editor</h1>
     <input id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <br/>
@@ -162,7 +163,7 @@ var final = end - start;
     if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
     isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
     ){
-        console.log("specify correct values")
+        console.log("specify correct values");
     }
 
     else{
@@ -197,29 +198,36 @@ intervalid =   setInterval(()=>{
 
 
 function trim(){
+
     clearInterval(intervalid);
     var start = parseInt(document.getElementById("start").value);
 var end = parseInt(document.getElementById("end").value);
 time=0;
 var final = end - start;
+
+
     if(source){
         source.stop();
     }
 
 
     if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
-    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <= 0
     ){
-        console.log("specify correct values")
-    }
+        console.log("specify correct values");
 
+        
+    }
+else if (start === 0 && end === source.buffer.duration){
+    console.log ("array length is not valid")
+}
     else{
         array.splice(start*audiocontext.sampleRate, final*audiocontext.sampleRate);
 
 source = audiocontext.createBufferSource();
 
 var array1 = new Float32Array(array);
-var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
 var ab1=  audiobuffer.getChannelData(0);
 ab1.set(array);
    
@@ -236,12 +244,8 @@ if (time === parseInt(source.buffer.duration)){
 }
 }, 1000);
 
-    }
+}}
 
-
-   
-      
-}
 
 
 function cut(){
@@ -258,7 +262,7 @@ time=0;
    
   
     if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
-    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <=0
     ){
         console.log("specify correct values")
     }
@@ -272,7 +276,11 @@ array = array1;
    source = audiocontext.createBufferSource();
   
 var array1 = new Float32Array(array);
-   var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+
+
+
+
+    var audiobuffer =   audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
    var ab1=  audiobuffer.getChannelData(0);
 ab1.set(array);
       
@@ -289,6 +297,9 @@ intervalid =   setInterval(()=>{
    }
 }, 1000);
     }
+
+
+
     
     
 
