@@ -154,18 +154,19 @@ function play(){
     var start = parseInt(document.getElementById("start").value);
 var end = parseInt(document.getElementById("end").value);
 time = start;
+var final = end - start;
     if(source){
         source.stop();
     }
 
-  
+    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
+    ){
+        console.log("specify correct values")
+    }
 
-
-
-var final = end - start;
-   
-
-    source = audiocontext.createBufferSource();
+    else{
+        source = audiocontext.createBufferSource();
   
   var array1 = new Float32Array(array);
       var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
@@ -191,8 +192,8 @@ intervalid =   setInterval(()=>{
 
 }, 1000);
 
-
-}
+    }
+  }
 
 
 function trim(){
@@ -200,47 +201,45 @@ function trim(){
     var start = parseInt(document.getElementById("start").value);
 var end = parseInt(document.getElementById("end").value);
 time=0;
-
-
-
-
-  
-    
-    
-
-
-
-
-
-
-
 var final = end - start;
     if(source){
         source.stop();
     }
 
 
-    array.splice(start*audiocontext.sampleRate, final*audiocontext.sampleRate);
+    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
+    ){
+        console.log("specify correct values")
+    }
 
-    source = audiocontext.createBufferSource();
-  
+    else{
+        array.splice(start*audiocontext.sampleRate, final*audiocontext.sampleRate);
+
+source = audiocontext.createBufferSource();
+
 var array1 = new Float32Array(array);
-    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
-    var ab1=  audiobuffer.getChannelData(0);
- ab1.set(array);
-       
-       source.buffer=audiobuffer;
-       source.connect(audiocontext.destination);
-       source.start(0);
-       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+   
+   source.buffer=audiobuffer;
+   source.connect(audiocontext.destination);
+   source.start(0);
+   document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
 
 intervalid =   setInterval(()=>{
-        time++;
-    document.getElementById("timer").innerHTML = time;
-    if (time === parseInt(source.buffer.duration)){
-        clearInterval(intervalid);
-    }
+    time++;
+document.getElementById("timer").innerHTML = time;
+if (time === parseInt(source.buffer.duration)){
+    clearInterval(intervalid);
+}
 }, 1000);
+
+    }
+
+
+   
       
 }
 
@@ -258,36 +257,45 @@ time=0;
     }
    
   
-
-    
-    
-
-
-
-
- var array1 =   array.slice(start*audiocontext.sampleRate, end*audiocontext.sampleRate);
-
- array = array1;
-
-    source = audiocontext.createBufferSource();
-   
-var array1 = new Float32Array(array);
-    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
-    var ab1=  audiobuffer.getChannelData(0);
- ab1.set(array);
-       
-       source.buffer=audiobuffer;
-       source.connect(audiocontext.destination);
-       source.start(0);
-       document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
-    
-intervalid =   setInterval(()=>{
-        time++;
-    document.getElementById("timer").innerHTML = time;
-    if (time === parseInt(source.buffer.duration)){
-        clearInterval(intervalid);
+    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
+    ){
+        console.log("specify correct values")
     }
+
+    else{
+
+        var array1 =   array.slice(start*audiocontext.sampleRate, end*audiocontext.sampleRate);
+
+array = array1;
+
+   source = audiocontext.createBufferSource();
+  
+var array1 = new Float32Array(array);
+   var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+   var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+      
+      source.buffer=audiobuffer;
+      source.connect(audiocontext.destination);
+      source.start(0);
+      document.getElementById("duration").innerHTML = parseInt(source.buffer.duration);
+   
+intervalid =   setInterval(()=>{
+       time++;
+   document.getElementById("timer").innerHTML = time;
+   if (time === parseInt(source.buffer.duration)){
+       clearInterval(intervalid);
+   }
 }, 1000);
+    }
+    
+    
+
+
+
+
+ 
 
 }
 
