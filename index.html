@@ -80,6 +80,7 @@ After providing the starting and ending points, you have two options: trim or cu
         var source;
         var time=0;
         let intervalid;
+        var check = null;
 
 function myFunction() {
 
@@ -107,10 +108,9 @@ if (source){
     var y = Array.from(x);
     array = array.concat(y);
     source = audiocontext.createBufferSource();
+check = 1;
 
     time = 0;
-
-
    
     
     
@@ -167,7 +167,7 @@ var final = end - start;
         source.stop();
     }
 
-    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    if (check === null || isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
     isNaN(end) || end > source.buffer.duration || end < 0 || end <= start
     ){
         console.log("specify correct values");
@@ -218,7 +218,7 @@ var final = end - start;
     }
 
     document.getElementById("timer").innerHTML = time;
-    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    if (check === null || isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
     isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <= 0
     ){
         console.log("specify correct values");
@@ -259,29 +259,33 @@ if (time === parseInt(source.buffer.duration)){
 
 function cut(){
 
-
 clearInterval(intervalid);
     var start = parseFloat(document.getElementById("start").value);
 var end = parseFloat(document.getElementById("end").value);
 
+var samplerate;
 time=0;
     if(source){
         source.stop();
     }
     document.getElementById("timer").innerHTML = time;
   
-    if (isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
-    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <=0
+    if (check === null || isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <=0 
     ){
         console.log("specify correct values")
     }
 
     else{
+        samplerate = source.buffer.sampleRate;
+        var array1
 
-        var array1 =   array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
+        if (end*source.buffer.sampleRate >= 1){
+        
+        array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
 array = array1;
-
+}
    source = audiocontext.createBufferSource();
   
 var array1 = new Float32Array(array);
@@ -327,7 +331,7 @@ intervalid =   setInterval(()=>{
  function exportdata(){
 
 
- 
+ if (check!= null){
        
         var mp3Data = [];
 
@@ -350,7 +354,7 @@ var mp3encoder = new lamejs.Mp3Encoder(1, source.buffer.sampleRate, 128);
   a.click();
   document.body.removeChild(a);
     
-  
+}
 }
     </script>
 </body>
