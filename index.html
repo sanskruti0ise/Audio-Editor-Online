@@ -5,14 +5,15 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="This is free online Audio Editor. The audio editor can 
-    perform audio files merging/joining, trimming and cutting audio.">
+    perform audio files merging/joining, trimming and cutting audio. You can also undo previous work.">
     <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
     <title>Free Audio Editor</title>
 </head>
 <body>
+
     <a style="font-size: 20px; text-decoration: none;" href="index.html">Without Undo Feature </a>
     <a style="font-size: 20px; text-decoration: none; margin-left: 10px;" href="withundo.html">With Undo Feature </a>
-    <h1>Free Online Audio Editor</h1>
+    <h1>Free Online Audio Editor with Undo Feature</h1>
     <input  id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <br/>
@@ -34,8 +35,9 @@
         and ending points. For instance, if you want to Play, Cut or Trim the audio from the 
         10th to the 20th second, simply input "10" as the starting point and "20" 
         as the ending point, and then click the "Play, Cut or Trim" button. Just export the file by clicking 
-        on "Export button" in MP3 format after you finish editing. If you want use a app with "Undo feature" 
-        click on "with undo feature" from the top.
+        on "Export button" in MP3 format after you finish editing. You can undo previous work by just pressing "z" key 
+        on the keyboard. If you want use a app without "Undo feature" 
+        click on "without undo feature" from the top.
     </p>
 <label>Starting Point</label>
 <br/>
@@ -89,10 +91,52 @@ After providing the starting and ending points, you have two options: trim or cu
         var check = null;
         var sourcecheck = null;
 
-       
+        var undo=[];
 
-     
+        var array2 = [];
 
+        document.addEventListener("keydown", function(event) {
+if (event.key === "z"){
+
+
+    if (undo.length >0){
+
+        if (source){
+    source.stop()
+}
+
+clearInterval(intervalid);
+time = 0;
+
+array = undo[undo.length-1];
+undo.pop();
+
+
+document.getElementById("totallength").innerHTML=array.length;
+source = audiocontext.createBufferSource();
+var array1 = new Float32Array(array);
+var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+
+source.buffer=audiobuffer;
+source.connect(audiocontext.destination);
+source.start(0);
+document.getElementById("duration").innerHTML = source.buffer.duration;
+if ( source.buffer.duration >=1){
+intervalid =   setInterval(()=>{
+time++;
+document.getElementById("timer").innerHTML = time;
+if (time === parseInt(source.buffer.duration)){
+clearInterval(intervalid);
+}
+}, 1000);
+}
+
+}
+    
+}
+});
         function keydownfun(){
 
             if (check!==null){
@@ -338,7 +382,9 @@ console.log("starting point is greater than or equal to source buffer duration")
     else{
         
 
-    
+        var array4 = [...array];
+        undo.push(array4);
+        
         array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
         
       
@@ -404,7 +450,7 @@ console.log("starting point is greater than or equal to source buffer duration")
         console.log("end is not a number")
     } 
     else if ( end > source.buffer.duration ){
-    console.log("ending point is greater than duration")
+    console.log("ending point is greater than or equal to duration")
      end < 0 }
      
      else if ( end <= start){
@@ -424,6 +470,9 @@ console.log("starting point is greater than or equal to source buffer duration")
         if (end*source.buffer.sampleRate >= 1){
         
           
+            var array3 = [...array];
+
+undo.push(array3);
         array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
         array = array1;
