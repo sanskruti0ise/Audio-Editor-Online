@@ -96,7 +96,52 @@ After providing the starting and ending points, you have two options: trim or cu
         var check = null;
         var sourcecheck = null;
 
-       
+        var undo=[];
+
+        var array2 = [];
+
+        document.addEventListener("keydown", function(event) {
+if (event.key === "z"){
+
+
+    if (undo.length >0){
+
+        if (source){
+    source.stop()
+}
+
+clearInterval(intervalid);
+time = 0;
+
+array = undo[undo.length-1];
+undo.pop();
+
+
+document.getElementById("totallength").innerHTML=array.length;
+source = audiocontext.createBufferSource();
+var array1 = new Float32Array(array);
+var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+
+source.buffer=audiobuffer;
+source.connect(audiocontext.destination);
+source.start(0);
+document.getElementById("duration").innerHTML = source.buffer.duration;
+if ( source.buffer.duration >=1){
+intervalid =   setInterval(()=>{
+time++;
+document.getElementById("timer").innerHTML = time;
+if (time === parseInt(source.buffer.duration)){
+clearInterval(intervalid);
+}
+}, 1000);
+}
+
+}
+    
+}
+});
         function keydownfun(){
 
             if (check!==null){
@@ -139,11 +184,11 @@ if (source){
     document.getElementById("totallength").innerHTML=array.length;
     source = audiocontext.createBufferSource();
 check = 1;
-
+document.getElementById("error").innerHTML = "";
     time = 0;
    
     
-    document.getElementById("error").innerHTML = "";
+    
 
 
 
@@ -190,12 +235,6 @@ function play(){
 var end = parseFloat(document.getElementById("end").value);
 
 time = parseInt(start);
-
-
-
-
-  
-
 
 
 var final = end - start;
@@ -258,6 +297,7 @@ document.getElementById("error").innerHTML = "No data available"
 
 
     else{
+
         document.getElementById("timer").innerHTML = time;
         source = audiocontext.createBufferSource();
   
@@ -310,7 +350,7 @@ var final = end - start;
         source.stop();
     
 }
-    document.getElementById("timer").innerHTML = time;
+   
     if (check === null ){
 
 document.getElementById("error").innerHTML = "Please select a file"
@@ -361,8 +401,9 @@ document.getElementById("error").innerHTML = "No data available"
 
     else{
         
-
         document.getElementById("timer").innerHTML = time;
+        var array4 = [...array];
+        undo.push(array4);
         
         array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
         
@@ -398,11 +439,12 @@ clearInterval(intervalid);
     var start = parseFloat(document.getElementById("start").value);
 var end = parseFloat(document.getElementById("end").value);
 
+var samplerate;
 time=0;
     if(source){
         source.stop();
     }
-    document.getElementById("timer").innerHTML = time;
+   
   
     if (check === null ){
 
@@ -455,10 +497,15 @@ document.getElementById("error").innerHTML = "No data available"
 
     else{
         document.getElementById("timer").innerHTML = time;
+        samplerate = source.buffer.sampleRate;
         var array1;
 
         if (end*source.buffer.sampleRate >= 1){
         
+          
+            var array3 = [...array];
+
+undo.push(array3);
         array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
         array = array1;
