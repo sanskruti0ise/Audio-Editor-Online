@@ -13,7 +13,7 @@
 
     <a href="speechtotext.html">Speech to Text </a>
     <h1>Free Online Audio Editor</h1>
-    <input id = "file" type="file" onchange="myFunction()"/>
+    <input  id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <br/>
     <div>
@@ -21,6 +21,10 @@
     <span id = 'timer'>0</span>
     <span style="margin-left:40px;">Audio Duration: </span>
     <span id = 'duration'>0</span>
+    <span style="margin-left:40px;">Total Length: </span>
+    <span id = 'totallength'>0</span>
+    <span style="margin-left:40px;">Selected Length: </span>
+    <span id = 'selectedlength'>0</span>
 </div>
 
     <div style=" background-color:lightblue;padding:30px;">
@@ -34,12 +38,12 @@
     </p>
 <label>Starting Point</label>
 <br/>
-<input id = "start" type="text"/>
+<input oninput="keydownfun(this)" id = "start" type="text"/>
 <br/>
 <br/>
 <label>Ending Point</label>
 <br/>
-<input id = "end" type="text"/>
+<input oninput="keydownfun(this)" id = "end" type="text"/>
 <br/>
 <br/>
 
@@ -82,6 +86,17 @@ After providing the starting and ending points, you have two options: trim or cu
         let intervalid;
         var check = null;
 
+        function keydownfun(){
+
+            if (check!==null){
+
+            var start =parseFloat(document.getElementById("start").value)
+            var end =parseFloat(document.getElementById("end").value);
+            var index = end*audiocontext.sampleRate - start*audiocontext.sampleRate;
+            document.getElementById("selectedlength").innerHTML=parseInt(index);
+        }
+        }
+
 function myFunction() {
 
 
@@ -107,6 +122,8 @@ if (source){
     var x = audiofile.getChannelData(0);
     var y = Array.from(x);
     array = array.concat(y);
+
+    document.getElementById("totallength").innerHTML=array.length;
     source = audiocontext.createBufferSource();
 check = 1;
 
@@ -218,23 +235,19 @@ var final = end - start;
     }
 
     document.getElementById("timer").innerHTML = time;
-    if (check === null || isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
-    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <= 0
+    if (check === null || 
+    isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end >= source.buffer.duration || end < 0 || end <= start || array.length <= 0
     ){
         console.log("specify correct values");
 
         
     }
-
-    else if (final === source.buffer.duration){
-        console.log("no data in array");
-    }
     else{
         array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
 
-       
+        document.getElementById("totallength").innerHTML=array.length;
 source = audiocontext.createBufferSource();
-
 var array1 = new Float32Array(array);
     var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
 var ab1=  audiobuffer.getChannelData(0);
@@ -270,8 +283,9 @@ time=0;
     }
     document.getElementById("timer").innerHTML = time;
   
-    if (check === null || isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
-    isNaN(end) || end > source.buffer.duration || end < 0 || end <= start || array.length <=0 
+    if (check === null || 
+    isNaN(start) || start >= source.buffer.duration || start < 0 || start >= end ||
+    isNaN(end) || end >= source.buffer.duration || end < 0 || end <= start || array.length <=0 
     ){
         console.log("specify correct values")
     }
@@ -285,6 +299,8 @@ time=0;
         array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
 array = array1;
+
+document.getElementById("totallength").innerHTML=array.length;
 }
    source = audiocontext.createBufferSource();
   
