@@ -18,6 +18,11 @@
     <br/>
     <br/>
     <div>
+    <span>Error: </span>
+    <span style="color:red" id = "error"></span>
+</div>
+<br/>
+    <div>
     <span>Audio Time: </span>
     <span id = 'timer'>0</span>
     <span style="margin-left:40px;">Audio Duration: </span>
@@ -91,52 +96,7 @@ After providing the starting and ending points, you have two options: trim or cu
         var check = null;
         var sourcecheck = null;
 
-        var undo=[];
-
-        var array2 = [];
-
-        document.addEventListener("keydown", function(event) {
-if (event.key === "z"){
-
-
-    if (undo.length >0){
-
-        if (source){
-    source.stop()
-}
-
-clearInterval(intervalid);
-time = 0;
-
-array = undo[undo.length-1];
-undo.pop();
-
-
-document.getElementById("totallength").innerHTML=array.length;
-source = audiocontext.createBufferSource();
-var array1 = new Float32Array(array);
-var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
-var ab1=  audiobuffer.getChannelData(0);
-ab1.set(array);
-
-source.buffer=audiobuffer;
-source.connect(audiocontext.destination);
-source.start(0);
-document.getElementById("duration").innerHTML = source.buffer.duration;
-if ( source.buffer.duration >=1){
-intervalid =   setInterval(()=>{
-time++;
-document.getElementById("timer").innerHTML = time;
-if (time === parseInt(source.buffer.duration)){
-clearInterval(intervalid);
-}
-}, 1000);
-}
-
-}
-    
-}
-});
+       
         function keydownfun(){
 
             if (check!==null){
@@ -146,6 +106,8 @@ clearInterval(intervalid);
             var index = end*audiocontext.sampleRate - start*audiocontext.sampleRate;
             document.getElementById("selectedlength").innerHTML=parseInt(index);
         }
+
+        document.getElementById("error").innerHTML = "";
         }
 
 function myFunction() {
@@ -181,7 +143,7 @@ check = 1;
     time = 0;
    
     
-    
+    document.getElementById("error").innerHTML = "";
 
 
 
@@ -229,12 +191,11 @@ var end = parseFloat(document.getElementById("end").value);
 
 time = parseInt(start);
 
-if (isNaN(time)){
 
-}
-else {
-    document.getElementById("timer").innerHTML = time;
-}
+
+
+  
+
 
 
 var final = end - start;
@@ -247,44 +208,57 @@ if (sourcecheck === null){
     }
 }
 
-    if (check === null ){
-        console.log("please select a file")
-    }
-    
-    else if (isNaN(start)){
-console.log("staring point is not a number")
+if (check === null ){
 
-    }
-    else if (start >= source.buffer.duration){
-console.log("starting point is greater than or equal to source buffer duration")
-    } 
-    
-    else if (start < 0 )
-    {
-        console.log("Please specify staring point greater than 0")
-    }
-    else if (start >= end) {
-        console.log("please speficy a staring point less than the ending point")
-    }
+document.getElementById("error").innerHTML = "Please select a file"
 
-    else if (isNaN(end)){
-        console.log("end is not a number")
-    } 
-    else if ( end > source.buffer.duration ){
-    console.log("ending point is greater or equal to than duration")
-     end < 0 }
-     
-     else if ( end <= start){
-        console.log("ending point is greater than equal to starting point")
-     }
+}
 
-     else if (array.length <=0){
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
 
-        console.log("No data available");
-     }
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end > source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+else if (array.length <=0){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
 
 
     else{
+        document.getElementById("timer").innerHTML = time;
         source = audiocontext.createBufferSource();
   
   var array1 = new Float32Array(array);
@@ -323,12 +297,6 @@ if (source){
 }
 }
 
-function undo(e){
-
- 
-
-}
-
 function trim(){
 
     clearInterval(intervalid);
@@ -344,46 +312,57 @@ var final = end - start;
 }
     document.getElementById("timer").innerHTML = time;
     if (check === null ){
-        console.log("please select a file")
-    }
-    
-    else if (isNaN(start)){
-console.log("staring point is not a number")
 
-    }
-    else if (start >= source.buffer.duration){
-console.log("starting point is greater than or equal to source buffer duration")
-    } 
-    
-    else if (start < 0 )
-    {
-        console.log("Please specify staring point greater than 0")
-    }
-    else if (start >= end) {
-        console.log("please speficy a staring point less than the ending point")
-    }
+document.getElementById("error").innerHTML = "Please select a file"
 
-    else if (isNaN(end)){
-        console.log("end is not a number")
-    } 
-    else if ( end >= source.buffer.duration ){
-    console.log("ending point is greater than or equal to duration")
-     end < 0 }
-     
-     else if ( end <= start){
-        console.log("ending point is greater than equal to starting point")
-     }
+}
 
-     else if (array.length <=0){
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
 
-        console.log("No data available");
-     }
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end >= source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than or equal to  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+else if (array.length <=0){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
 
     else{
         
 
-        var array4 = [...array];
-        undo.push(array4);
+        document.getElementById("timer").innerHTML = time;
         
         array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
         
@@ -419,7 +398,6 @@ clearInterval(intervalid);
     var start = parseFloat(document.getElementById("start").value);
 var end = parseFloat(document.getElementById("end").value);
 
-var samplerate;
 time=0;
     if(source){
         source.stop();
@@ -427,52 +405,60 @@ time=0;
     document.getElementById("timer").innerHTML = time;
   
     if (check === null ){
-        console.log("please select a file")
-    }
-    
-    else if (isNaN(start)){
-console.log("staring point is not a number")
 
-    }
-    else if (start >= source.buffer.duration){
-console.log("starting point is greater than or equal to source buffer duration")
-    } 
-    
-    else if (start < 0 )
-    {
-        console.log("Please specify staring point greater than 0")
-    }
-    else if (start >= end) {
-        console.log("please speficy a staring point less than the ending point")
-    }
+document.getElementById("error").innerHTML = "Please select a file"
 
-    else if (isNaN(end)){
-        console.log("end is not a number")
-    } 
-    else if ( end > source.buffer.duration ){
-    console.log("ending point is greater than or equal to duration")
-     end < 0 }
-     
-     else if ( end <= start){
-        console.log("ending point is greater than equal to starting point")
-     }
+}
 
-     else if (array.length <=0){
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
 
-        console.log("No data available");
-     }
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end > source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+else if (array.length <=0){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
 
 
     else{
-        samplerate = source.buffer.sampleRate;
+        document.getElementById("timer").innerHTML = time;
         var array1;
 
         if (end*source.buffer.sampleRate >= 1){
         
-          
-            var array3 = [...array];
-
-undo.push(array3);
         array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
 
         array = array1;
