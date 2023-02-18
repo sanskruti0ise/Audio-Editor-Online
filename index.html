@@ -19,6 +19,9 @@
     <input  id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <br/>
+    <span id="status"></span>
+    <br/>
+    <br/>
     <div>
     <span>Error: </span>
     <span style="color:red" id = "error"></span>
@@ -162,7 +165,7 @@ clearInterval(intervalid);
 
 function myFunction() {
 
-
+    document.getElementById("status").innerHTML = "Loading and decoding file..."
  
         clearInterval(intervalid);
 
@@ -222,7 +225,7 @@ var array1 = new Float32Array(array);
        sourceduration = source.buffer.duration;
        document.getElementById("duration").innerHTML = source.buffer.duration;
 
-   
+   if (source.buffer.duration>=1){
 intervalid =   setInterval(()=>{
         time++;
     document.getElementById("timer").innerHTML = time;
@@ -232,8 +235,10 @@ intervalid =   setInterval(()=>{
     }
     
 }, 1000);
-    
+}
+document.getElementById("status").innerHTML = "";
    }).catch(function(error){
+    document.getElementById("status").innerHTML = "";
     document.getElementById("error").innerHTML = "Cannot open file"
    });;
 
@@ -334,8 +339,8 @@ document.getElementById("error").innerHTML = "No data available"
          source.start(0, start, final);
          
          document.getElementById("duration").innerHTML = source.buffer.duration;
-     
-if (parseInt(start) != parseInt(end)){
+    
+         if (parseInt(start) != parseInt(end)){
 intervalid =   setInterval(()=>{
     
     time++;
@@ -551,10 +556,10 @@ ab1.set(array);
       source.start(0);
     sourceduration = source.buffer.duration;
       document.getElementById("duration").innerHTML = source.buffer.duration;
-   if (source.buffer.duration<1){
+   if (source.buffer.duration>=1){
 
-   }
-   else{
+  
+   
 intervalid =   setInterval(()=>{
        time++;
    document.getElementById("timer").innerHTML = time;
@@ -562,7 +567,7 @@ intervalid =   setInterval(()=>{
        clearInterval(intervalid);
    }
 }, 1000);
-    }
+} 
 }
 
 
@@ -577,33 +582,40 @@ intervalid =   setInterval(()=>{
 }
 
 
+function exportdata(){
 
- function exportdata(){
-
-
- if (check!= null){
-       
-        var mp3Data = [];
-
-var samples = new Int16Array(array.length);
-
-var j = 0;
-  for (var i = 0; i < array.length; i++) {
-    samples[j++] = (array[i] * 0x7FFF);
-  }
-var mp3encoder = new lamejs.Mp3Encoder(1, source.buffer.sampleRate, 128);
- var mp3Tmp = mp3encoder.encodeBuffer(samples);
- mp3Data.push(mp3Tmp);
-
- const blob = new Blob(mp3Data, { type: "audio/mp3" });
-  const audioURL = window.URL.createObjectURL(blob);
-  var a = document.createElement("a");
-  a.href = audioURL;
-  a.download = "downloaded.mp3";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
     
+
+if (check!=null){
+
+    document.getElementById("status").innerHTML = "Encoding in Progress it may take some time";
+const obj ={
+    
+    data: array,
+    samplerate: source.buffer.sampleRate
+
+}
+
+var  w = new Worker("worker.js");
+w.postMessage(obj);
+
+w.onmessage = function(event) {
+const result = event.data;
+const blob = new Blob(result, { type: "audio/mp3" });
+const audioURL = window.URL.createObjectURL(blob);
+var a = document.createElement("a");
+a.href = audioURL;
+a.download = "downloaded.mp3";
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+document.getElementById("status").innerHTML = "";
+};
+}
+
+else {
+
+document.getElementById("error").innerHTML = "Please select a file";
 }
 }
     </script>
