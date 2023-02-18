@@ -7,13 +7,15 @@
     <meta name="description" content="This is free online Audio Editor. The audio editor can 
     perform audio files merging/joining, trimming and cutting audio. You can also undo previous work.">
     <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
-    <title>Free Audio Editor</title>
+    <title>Free Audio Editor with Undo Feature</title>
+   
 </head>
 <body>
 
     <a style="font-size: 20px; text-decoration: none;" href="index.html">Without Undo Feature </a>
     <a style="font-size: 20px; text-decoration: none; margin-left: 10px;" href="withundo.html">With Undo Feature </a>
-    <h1>Free Online Audio Editor with Undo Feature</h1>
+    <a style="font-size: 20px; text-decoration: none; margin-left: 10px;" href="report.html">Report Bug </a>
+    <h1>Audio Editor with Undo Feature || Press 'z' for 'undo'</h1>
     <input  id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <br/>
@@ -40,8 +42,7 @@
         and ending points. For instance, if you want to Play, Cut or Trim the audio from the 
         10th to the 20th second, simply input "10" as the starting point and "20" 
         as the ending point, and then click the "Play, Cut or Trim" button. Just export the file by clicking 
-        on "Export button" in MP3 format after you finish editing. You can undo previous work by just pressing "z" key 
-        on the keyboard. If you want use a app without "Undo feature" 
+        on "Export button" in MP3 format after you finish editing. <span style = "color:red; font-size: 20px;">Press "z" key on keyboard for "undo"</span>. If you want use a app without "Undo feature" 
         click on "without undo feature" from the top.
     </p>
 <label>Starting Point</label>
@@ -99,6 +100,9 @@ After providing the starting and ending points, you have two options: trim or cu
         var undo=[];
 
         var array2 = [];
+        var checkundo = null;
+        var sourceduration = 0;
+      
 
         document.addEventListener("keydown", function(event) {
 if (event.key === "z"){
@@ -127,6 +131,7 @@ ab1.set(array);
 source.buffer=audiobuffer;
 source.connect(audiocontext.destination);
 source.start(0);
+sourceduration = source.buffer.duration;
 document.getElementById("duration").innerHTML = source.buffer.duration;
 if ( source.buffer.duration >=1){
 intervalid =   setInterval(()=>{
@@ -177,15 +182,28 @@ if (source){
  fr.onload = function(){
   
    audiocontext.decodeAudioData(fr.result, function(audiofile){
+
+    if (checkundo === 1){
+        var array4 = [...array];
+        undo.push(array4);
+    }
+    checkundo=1;
     var x = audiofile.getChannelData(0);
     var y = Array.from(x);
-    array = array.concat(y);
+    try{
+        array = array.concat(y);
+    }
+    catch(error){
+        alert('Limit Exceed');
+        console.error("error");
+        sourceduration=0;
+    }
 
     document.getElementById("totallength").innerHTML=array.length;
     source = audiocontext.createBufferSource();
 check = 1;
 document.getElementById("error").innerHTML = "";
-    time = 0;
+    time = parseInt(sourceduration);
    
     
     
@@ -200,7 +218,8 @@ var array1 = new Float32Array(array);
        
        source.buffer=audiobuffer;
        source.connect(audiocontext.destination);
-       source.start(0);
+       source.start(0, sourceduration);
+       sourceduration = source.buffer.duration;
        document.getElementById("duration").innerHTML = source.buffer.duration;
 
    
@@ -214,7 +233,9 @@ intervalid =   setInterval(()=>{
     
 }, 1000);
     
-   });
+   }).catch(function(error){
+    document.getElementById("error").innerHTML = "Cannot open file"
+   });;
 
   
  } 
@@ -419,6 +440,7 @@ ab1.set(array);
    source.buffer=audiobuffer;
    source.connect(audiocontext.destination);
    source.start(0);
+   sourceduration = source.buffer.duration;
    document.getElementById("duration").innerHTML = source.buffer.duration;
    if ( source.buffer.duration >=1){
 intervalid =   setInterval(()=>{
@@ -527,6 +549,7 @@ ab1.set(array);
       source.buffer=audiobuffer;
       source.connect(audiocontext.destination);
       source.start(0);
+    sourceduration = source.buffer.duration;
       document.getElementById("duration").innerHTML = source.buffer.duration;
    if (source.buffer.duration<1){
 
