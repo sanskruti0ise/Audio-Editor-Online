@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="This is free online Audio Editor. The audio editor can 
+    perform audio files merging/joining, trimming and cutting audio. You can also undo previous work.">
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script src="https://unpkg.com/wavesurfer.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Free Audio Editor</title>
+</head>
+<body>
+    <div id = "navbarmain">
+<div id = "navbar">
+    <a href="index.html">Without Undo Feature </a>
+    <a  href="withundo.html">With Undo Feature </a>
+    <a href="report.html">Report Bug </a>
+
+</div>
+
+<div id = "heavyfun">
+    <button class="button1" onclick="cleardata()">Clear Data</button>
+    <button class="button1" onclick="exportdata()">Export</button>
+</div>
+</div>
+    <h1>Free Online Audio Editor</h1>
+    <input  id = "file" type="file" onchange="myFunction()"/>
+    <br/>
+    <span id="status"></span>
+    <br/>
+    <div>
+    <span>Error: </span>
+    <span style="color:red" id = "error"></span>
+</div>
+<br/>
+    <div id = "audioinfo">
+    <span >Audio Time: </span>
+    <span id = 'timer'>0</span>
+    <span  class ="info">Audio Duration: </span>
+    <span   id = 'duration'>0</span>
+    <br id = "linebreak"/>
+    <span id ="totallength1"  class="info" >Total Length: </span>
+    <span  id = 'totallength'>0</span>
+    <span  class="info">Selected Length: </span>
+    <span  id = 'selectedlength'>0</span>
+</div>
+
+    <div style=" background-color:lightblue;padding:15px;">
+        
+        <div id = "menu">
+<button class="button2" id ="play" onclick="play()">Play</button>
+<button class="button2" id ="stop" onclick="stop()">Stop</button>
+<button class="button2" id ="trim1" onclick="trim()">Trim</button>
+<button class="button2" id="cut1" onclick="cut()">Cut</button>
+<button class="button2" id="generatewave" onclick="generatewave()">Generate Waveform</button>
+<button class="button2" id="exportdata1" onclick="exportdata()">Export</button>
+    </div>
+    <div id ="information">
+    <h2>Playing, Cutting and Trimming Audio</h2>
+
+    <p>To Play, Cut or Trim an audio file, you can specify the starting 
+        and ending points. For instance, if you want to Play, Cut or Trim the audio from the 
+        10th to the 20th second, simply input "10" as the starting point and "20" 
+        as the ending point, and then click the "Play, Cut or Trim" button. Just export the file by clicking 
+        on "Export button" in MP3 format after you finish editing.  
+        If you want use a app with "Undo feature" 
+        click on "with undo feature" from the top menu. Every thing is done in JavaScript so you may dont need internet to use this app.
+    </p>
+</div>
+<label>Starting Point in Seconds (you can specify decimal values between 0 and video duration)</label>
+<br/>
+<input class="input" oninput="keydownfun(this)" id = "start" type="text"/>
+<br/>
+<br/>
+<label>Ending Point in Seconds (you can specify decimal values between 0 and video duration)</label>
+<br/>
+<input class="input" oninput="keydownfun(this)" id = "end" type="text"/>
+<br/>
+<br/>
+
+<button class="button" id ="play" onclick="play()">Play</button>
+<button class="button" id ="stop" onclick="stop()">Stop</button>
+<button class="button" id ="trim1" onclick="trim()">Trim</button>
+<button class="button" id="cut1" onclick="cut()">Cut</button>
+<button class="button" id="generatewave" onclick="generatewave()">Generate Waveform</button>
+
+
+
+</div>
+    <h2>How to Use</h2>
+
+    <iframe class="iframe" src="https://www.youtube.com/embed/Wq9ALsLBYMY" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<p>To use this app, you need to select an audio file by clicking "Choose File". After selecting the file, put the starting and ending points. The starting point is the starting value in seconds from where you want to cut or trim the audio, and the ending point is the ending value in seconds.
+After providing the starting and ending points, you have two options: trim or cut the audio.
+
+</p>
+<h3>Difference between Trim and Cut</h3>
+<p>Trimming means removing a specific part of the audio. For example, if your audio is 60 seconds long, and you want to trim 10 seconds in the middle, let's say you want to trim the audio from 10 seconds to 20 seconds. The trimming operation will remove the audio from 10 seconds to 20 seconds and save the rest of the audio.
+</p>
+<p>Cutting audio means you will get a specific part of the audio. For example, if you want to cut the audio from 10 seconds to 20 seconds, the cutting operation will return an audio file containing the audio between 10 seconds to 20 seconds.
+</p>
+
+
+<h3>Audio files Merging/Joining</h3>
+
+<p>
+    This application has the capability to join or merge multiple audio files together. 
+    To accomplish this task, all you have to do is select the audio files you want to 
+    combine. Simply press the "Choose file" button to pick a new file, and it will 
+    automatically be added to the previously selected file.
+</p>
+
+<h3>Exporting Audio</h3>
+<p>Once you done editing you can export file into and mp3 format by clicking "Export" button</p>
+<p>Report any problem at <span style="color:blue;">contact@musk-technology.com</span></p>
+    <script>
+
+        var array = [];
+        var audiocontext;
+        var source;
+        var time=0;
+        let intervalid;
+        var check = null;
+        var sourcecheck = null;
+        var sourceduration = 0;
+        
+       
+       
+        function keydownfun(){
+
+            if (check!==null){
+
+            var start =parseFloat(document.getElementById("start").value)
+            var end =parseFloat(document.getElementById("end").value);
+            var index = end*audiocontext.sampleRate - start*audiocontext.sampleRate;
+            document.getElementById("selectedlength").innerHTML=parseInt(index);
+        }
+
+        document.getElementById("error").innerHTML = "";
+        }
+
+function myFunction() {
+
+document.getElementById("status").innerHTML = "Loading and decoding file..."
+ 
+        clearInterval(intervalid);
+
+    if (audiocontext === undefined){
+ 
+ audiocontext= new AudioContext();
+}
+
+
+if (source){
+ source.stop();
+}
+if (waveformsource){
+        waveformsource.stop();
+    }
+
+
+ const fr = new FileReader();
+
+ fr.onload = function(){
+  
+   audiocontext.decodeAudioData(fr.result, function(audiofile){
+    var x = audiofile.getChannelData(0);
+    var y = Array.from(x);
+    try{
+        if (array===null){
+            array = y;
+            sourceduration = 0;
+            
+        }
+        else{
+
+            array = array.concat(y);
+        }
+        
+    }
+    catch(error){
+        alert('Limit Exceed');
+        console.error("error");
+        sourceduration=0;
+    }
+
+    document.getElementById("totallength").innerHTML=array.length;
+    source = audiocontext.createBufferSource();
+check = 1;
+
+    time = parseInt(sourceduration);
+   
+    
+    document.getElementById("error").innerHTML = "";
+
+
+
+   
+var array1 = new Float32Array(array);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+    var ab1=  audiobuffer.getChannelData(0);
+ ab1.set(array);
+
+ 
+
+
+   
+       
+       source.buffer=audiobuffer;
+       source.connect(audiocontext.destination);
+       source.start(0, sourceduration);
+       sourceduration = source.buffer.duration;
+       
+       document.getElementById("duration").innerHTML = source.buffer.duration.toFixed(3);
+
+   if (source.buffer.duration>=1){
+intervalid =   setInterval(()=>{
+        time++;
+    document.getElementById("timer").innerHTML = time;
+
+    if (time ===parseInt(source.buffer.duration)){
+        clearInterval(intervalid);
+    }
+    
+}, 1000);
+}
+document.getElementById("status").innerHTML = "";
+   }).catch(function(error){
+    document.getElementById("status").innerHTML = "";
+    document.getElementById("error").innerHTML = "Cannot open file"
+   });;
+
+  
+ } 
+ var Files= document.getElementById("file").files
+ file = Files[0];
+ if (file){
+  fr.readAsArrayBuffer(Files[0]);
+}
+
+document.getElementById("file").value = '';
+}
+
+function play(){
+
+    clearInterval(intervalid);
+    
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
+
+time = parseInt(start);
+
+
+
+
+  
+
+
+
+var final = end - start;
+
+if (sourcecheck === null){
+
+    
+    if(source){
+        source.stop();
+    }
+
+    if (waveformsource){
+        waveformsource.stop();
+    }
+}
+
+if (check === null ){
+
+document.getElementById("error").innerHTML = "Please select a file"
+
+}
+
+else if (array===null){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
+
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
+
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end > source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+
+
+
+    else{
+        document.getElementById("timer").innerHTML = time;
+        source = audiocontext.createBufferSource();
+  
+  var array1 = new Float32Array(array);
+      var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+      var ab1=  audiobuffer.getChannelData(0);
+   ab1.set(array);
+
+ 
+         
+         source.buffer=audiobuffer;
+         source.connect(audiocontext.destination);
+         source.start(0, start, final);
+         
+         document.getElementById("duration").innerHTML = source.buffer.duration.toFixed(3);
+     
+         if (parseInt(start) != parseInt(end)){
+intervalid =   setInterval(()=>{
+    
+    time++;
+    document.getElementById("timer").innerHTML = time;
+
+    if (time === parseInt(end)){
+        clearInterval(intervalid);
+    }
+
+}, 1000);
+    
+    }}
+  }
+
+function stop(){
+if (source){
+    source.stop();
+    clearInterval(intervalid);
+}
+}
+
+function trim(){
+
+    clearInterval(intervalid);
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
+time=0;
+var final = end - start;
+
+
+    if(source){
+        source.stop();
+    
+}
+
+if (waveformsource){
+        waveformsource.stop();
+    }
+    document.getElementById("timer").innerHTML = time;
+    if (check === null ){
+
+document.getElementById("error").innerHTML = "Please select a file"
+
+}
+
+else if (array===null){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
+
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
+
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end >= source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than or equal to  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+    else{
+        
+
+        document.getElementById("timer").innerHTML = time;
+        
+        array.splice(parseInt(start*audiocontext.sampleRate), parseInt(final*audiocontext.sampleRate));
+        
+        document.getElementById("start").value="";
+        document.getElementById("end").value="";
+        
+        document.getElementById("totallength").innerHTML=array.length;
+source = audiocontext.createBufferSource();
+var array1 = new Float32Array(array);
+    var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+   
+   source.buffer=audiobuffer;
+   source.connect(audiocontext.destination);
+   source.start(0);
+   sourceduration = source.buffer.duration;
+   document.getElementById("duration").innerHTML = source.buffer.duration.toFixed(3);
+   if ( source.buffer.duration >=1){
+intervalid =   setInterval(()=>{
+    time++;
+document.getElementById("timer").innerHTML = time;
+if (time === parseInt(source.buffer.duration)){
+    clearInterval(intervalid);
+}
+}, 1000);
+   }
+}}
+
+
+
+function cut(){
+
+clearInterval(intervalid);
+    var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
+
+time=0;
+    if(source){
+        source.stop();
+    }
+
+    if (waveformsource){
+        waveformsource.stop();
+    }
+    document.getElementById("timer").innerHTML = time;
+  
+    if (check === null ){
+
+document.getElementById("error").innerHTML = "Please select a file"
+
+}
+
+else if (array===null){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
+
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
+
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end > source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+
+    else{
+        document.getElementById("timer").innerHTML = time;
+        var array1;
+
+        if (end*source.buffer.sampleRate >= 1){
+        
+        array1 = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
+
+        array = array1;
+        document.getElementById("start").value="";
+        document.getElementById("end").value="";
+
+document.getElementById("totallength").innerHTML=array.length;
+}
+   source = audiocontext.createBufferSource();
+  
+array1 = new Float32Array(array);
+
+
+
+
+    var audiobuffer =   audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+   var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+      
+      source.buffer=audiobuffer;
+      source.connect(audiocontext.destination);
+      source.start(0);
+      sourceduration = source.buffer.duration;
+      document.getElementById("duration").innerHTML = source.buffer.duration.toFixed(3);
+   if (source.buffer.duration>=1){
+
+   
+   
+intervalid =   setInterval(()=>{
+       time++;
+   document.getElementById("timer").innerHTML = time;
+   if (time === parseInt(source.buffer.duration)){
+       clearInterval(intervalid);
+   }
+}, 1000);
+    }
+}
+
+
+    
+    
+
+
+
+
+ 
+
+}
+
+
+
+ function exportdata(){
+
+    
+
+    if (check!=null && array !== null){
+
+        document.getElementById("status").innerHTML = "Encoding in Progress it may take some time";
+    const obj ={
+        
+        data: array,
+        samplerate: source.buffer.sampleRate
+    
+    }
+
+  var  w = new Worker("worker.js");
+    w.postMessage(obj);
+
+    w.onmessage = function(event) {
+  const result = event.data;
+  const blob = new Blob(result, { type: "audio/mp3" });
+  const audioURL = window.URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = audioURL;
+  a.download = "downloaded.mp3";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  document.getElementById("status").innerHTML = "";
+};
+}
+
+else {
+
+    document.getElementById("error").innerHTML = "Please select a file";
+}
+}
+var wavearray = [];
+        var waveformsource;
+        var canvasid = 1;
+        var marginright=0;
+       
+
+function generatewave(){
+
+if (source){
+    source.stop();
+    source.disconnect();
+}
+
+clearInterval(intervalid);
+
+if(waveformsource){
+    waveformsource.stop();
+}
+
+
+
+
+var start = parseFloat(document.getElementById("start").value);
+var end = parseFloat(document.getElementById("end").value);
+
+
+if (check === null ){
+
+document.getElementById("error").innerHTML = "Please select a file"
+
+}
+
+else if (array===null){
+
+document.getElementById("error").innerHTML = "No data available"
+
+}
+
+else if (isNaN(start)){
+document.getElementById("error").innerHTML = "Starting point is not a number"
+
+
+}
+else if (start >= source.buffer.duration){
+document.getElementById("error").innerHTML = "starting point is greater than or equal to source buffer duration"
+
+} 
+
+else if (start < 0 )
+{
+
+document.getElementById("error").innerHTML = "Starting Point must be greater than 0"
+
+}
+else if (start >= end) {
+document.getElementById("error").innerHTML = "Starting Point must be less than Ending Point"
+
+}
+
+else if (isNaN(end)){
+document.getElementById("error").innerHTML = "Ending Point is not a number"
+} 
+else if ( end > source.buffer.duration ){
+
+document.getElementById("error").innerHTML = "Ending point is greater than  duration"
+
+end < 0 }
+
+else if ( end <= start){
+
+document.getElementById("error").innerHTML = "Ending Point is greater than equal to Starting Point"
+
+}
+
+
+else{
+if (end*source.buffer.sampleRate >= 1){
+var waveformcut = array.slice(parseInt(start*audiocontext.sampleRate), parseInt(end*audiocontext.sampleRate));
+var obj = {id: canvasid,
+    data:waveformcut,
+    valueindexstart: 0,
+    valueindexend:0,
+    isselected:false,
+    button:canvasid+1000000,
+}
+
+wavearray.push(obj);
+const canvas = document.createElement('canvas');
+const button = document.createElement('button');
+canvas.width = 800;
+canvas.height = 150;
+canvas.style.zIndex = "2"
+canvas.style.border = "3px solid black";
+canvas.style.backgroundColor = "white";
+canvas.style.position = "absolute";
+button.style.position = "absolute";
+button.innerHTML = "---"
+button.style.background = "black";
+button.style.color="white";
+button.style.border="none"
+button.style.padding="8px";
+
+canvas.id = `"${canvasid}"`;
+var buttonid = canvasid+1000000;
+button.id = `"${buttonid}"`;
+canvasid++;
+
+var margintop;
+var marginleft;
+var gettingall = document.getElementsByTagName("canvas");
+if (gettingall.length >0){
+margintop = parseInt(gettingall[gettingall.length-1].offsetTop)+40
+}
+else{
+margintop = 60;
+marginright = 0;
+}
+canvas.style.top = `${margintop}px`;
+canvas.style.right = `${marginright}px`;
+button.style.top = `${margintop}px`;
+button.style.right = "800px";
+
+document.body.appendChild(canvas);
+document.body.appendChild(button);
+
+button.addEventListener("click", (event)=>{
+    var zindex = document.getElementsByTagName("canvas");
+var counter = 0;
+while(counter<zindex.length){
+zindex[counter].style.zIndex = "0";
+counter++;
+}
+var counter1 = 0;
+
+
+
+while(counter1<wavearray.length){
+
+    var obj = wavearray[counter1];
+
+var objbutton = `"${obj.button}"`
+var objid = `"${obj.id}"`
+
+    if (objbutton === event.target.id){
+        document.getElementById(objid).style.zIndex = "1";
+    }
+    counter1++;
+}
+})
+
+
+const ctx = canvas.getContext('2d');
+
+ctx.beginPath();
+ctx.moveTo(0, canvas.height / 2);
+ctx.lineWidth = 1;
+const topOffset = 50;
+const bottomOffset = 10;
+for (let i = 0; i < waveformcut.length; i=i+500) {
+const x = i / waveformcut.length * canvas.width;
+const y = ((waveformcut[i] + 1) / 2 * (canvas.height - topOffset - bottomOffset)) + topOffset;
+ctx.lineTo(x, y);
+}
+ctx.stroke();
+
+
+const buttonWidth1 = 800;
+const buttonHeight1 = 40;
+const buttonX1 = 0
+const buttonY1 = 0
+ctx.fillStyle = 'red';
+ctx.fillRect(buttonX1, buttonY1, buttonWidth1, buttonHeight1);
+
+const buttonWidth2 = 60;
+const buttonHeight2 = 20;
+const buttonX2 = 15
+const buttonY2 = 10
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX2, buttonY2, buttonWidth2, buttonHeight2);
+
+const buttonWidth3 = 60;
+const buttonHeight3 = 20;
+const buttonX3 = 90
+const buttonY3 = 10
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX3, buttonY3, buttonWidth3, buttonHeight3);
+
+const buttonWidth4 = 60;
+const buttonHeight4 = 20;
+var margin = 10;
+const buttonX4 = 165
+const buttonY4 = 10
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX4, buttonY4, buttonWidth4, buttonHeight4);
+
+
+const buttonWidth5 = 60;
+const buttonHeight5= 20;
+var margin = 10;
+const buttonX5 = 240
+const buttonY5 = 10
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX5, buttonY5, buttonWidth5, buttonHeight5);
+
+const buttonWidth6 = 60;
+const buttonHeight6 = 20;
+const buttonX6 = 315
+const buttonY6 = 10
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX6, buttonY6, buttonWidth6, buttonHeight6);
+
+
+
+
+
+
+
+
+
+const buttonWidth = 20;
+const buttonHeight = 20;
+var margin = 10;
+const buttonX = canvas.width - buttonWidth - margin;
+const buttonY = margin;
+ctx.fillStyle = 'white';
+ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+ctx.font = "16px Arial";
+ctx.fillText("Play",30,25);
+ctx.fillText("Stop",105,25);
+ctx.fillText("Trim",180,25);
+ctx.fillText("Cut",255,25);
+ctx.fillText("Export",320,25);
+
+const centerX = buttonX + buttonWidth / 2;
+const centerY = buttonY + buttonHeight / 2;
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(centerX - buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX + buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.moveTo(centerX + buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX - buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.stroke();
+
+
+let isDrawing = false;
+let startX, startY, endX, endY;
+var valueIndexstart;
+var valueIndexend;
+
+canvas.addEventListener('click', event => {
+
+
+
+
+
+
+
+    
+var zindex = document.getElementsByTagName("canvas");
+var counter = 0;
+while(counter<zindex.length){
+zindex[counter].style.zIndex = "0";
+counter++;
+}
+canvas.style.zIndex = "1";
+
+
+if (waveformsource){
+    waveformsource.stop();
+}
+
+if (source){
+    source.stop();
+}
+
+clearInterval(intervalid);
+const x = event.pageX - canvas.offsetLeft;
+const y = event.pageY - canvas.offsetTop;
+
+
+if (x > buttonX && x < buttonX + buttonWidth && y > buttonY && y < buttonY + buttonHeight) {
+canvas.remove();
+var counter = 0;
+while(counter<wavearray.length){
+
+  var myobj = wavearray[counter];
+  var id = `"${myobj.id}"`;
+  var objbutton = `"${myobj.button}"`;
+ if (id === event.target.id){
+wavearray.splice(counter, 1)
+document.getElementById(objbutton).remove();
+}
+
+counter++;}
+}
+
+
+else if (x > buttonX2 && x < buttonX2 + buttonWidth2 && y > buttonY2 && y < buttonY2 + buttonHeight2){
+
+    
+    const rect = canvas.getBoundingClientRect();
+const x = event.clientX - rect.left;
+const y = event.clientY - rect.top;
+
+
+var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id){
+
+    var endtime = myobj.valueindexend/audiocontext.sampleRate - myobj.valueindexstart/audiocontext.sampleRate;
+     
+    
+    if (endtime>=0){
+    waveformsource = audiocontext.createBufferSource();
+    var array1 = new Float32Array(myobj.data);
+    var audiobuffer =   audiocontext.createBuffer(1, array1.length, audiocontext.sampleRate);
+ var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array1);
+waveformsource.buffer=audiobuffer;
+    waveformsource.connect(audiocontext.destination);
+
+    
+
+   
+    waveformsource.start(0, myobj.valueindexstart/audiocontext.sampleRate, endtime);
+}
+
+else{
+    console.log("cannot play audio");
+}
+    
+}
+
+counter++;
+}
+
+    
+  
+}
+
+
+else if (x > buttonX3 && x < buttonX3 + buttonWidth3 && y > buttonY3 && y < buttonY3 + buttonHeight3){
+if (waveformsource){
+    waveformsource.stop();
+
+}
+
+  
+
+}
+
+else if (x > buttonX5&& x < buttonX5 + buttonWidth5 && y > buttonY5 && y < buttonY5 + buttonHeight5){
+
+    var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id && myobj.isselected === true){
+myobj.isselected = false;
+    var endtime = myobj.valueindexend/audiocontext.sampleRate - myobj.valueindexstart/audiocontext.sampleRate;
+     if (endtime>=0 && myobj.data.length >0){
+    var array = myobj.data.slice(myobj.valueindexstart, myobj.valueindexend)
+
+    myobj.data = array;
+    wavearray[counter] = myobj;
+
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+
+       
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+
+      const topOffset = 50;
+      const bottomOffset = 10;
+      for (let i = 0; i < myobj.data.length; i=i+500) {
+        const x = i / myobj.data.length * canvas.width;
+        const y = ((myobj.data[i] + 1) / 2 * (canvas.height - topOffset - bottomOffset)) + topOffset;
+        ctx.lineTo(x, y);
+      }
+
+      // Stroke the path immediately after drawing it
+      ctx.stroke();
+
+
+
+      ctx.fillStyle = 'red';
+
+ctx.fillRect(buttonX1, buttonY1, buttonWidth1, buttonHeight1);
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX2, buttonY2, buttonWidth2, buttonHeight2);
+ctx.fillRect(buttonX3, buttonY3, buttonWidth3, buttonHeight3);
+ctx.fillRect(buttonX4, buttonY4, buttonWidth4, buttonHeight4);
+ctx.fillRect(buttonX5, buttonY5, buttonWidth5, buttonHeight5);
+ctx.fillRect(buttonX6, buttonY6, buttonWidth6, buttonHeight6);
+
+
+
+
+ctx.fillStyle = 'white';
+ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+ctx.font = "16px Arial";
+ctx.fillText("Play",30,25);
+ctx.fillText("Stop",105,25);
+ctx.fillText("Trim",180,25);
+ctx.fillText("Cut",255,25);
+ctx.fillText("Export",320,25);
+const centerX = buttonX + buttonWidth / 2;
+const centerY = buttonY + buttonHeight / 2;
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(centerX - buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX + buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.moveTo(centerX + buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX - buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.stroke();
+
+
+
+    
+}
+
+else{
+    console.log("cannot cut audio");
+}
+    
+}
+
+counter++;
+}
+}
+
+else if (x > buttonX4 && x < buttonX4 + buttonWidth4 && y > buttonY4 && y < buttonY4 + buttonHeight4){
+
+    var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id && myobj.isselected===true){
+    myobj.isselected = false;
+    var endtime = myobj.valueindexend/audiocontext.sampleRate - myobj.valueindexstart/audiocontext.sampleRate;
+     if (endtime>=0 && myobj.data.length>0){
+
+        endindex = myobj.valueindexend - myobj.valueindexstart
+    myobj.data.splice(myobj.valueindexstart, endindex)
+    wavearray[counter] = myobj;
+
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+
+       
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+
+      const topOffset = 50;
+      const bottomOffset = 10;
+      for (let i = 0; i < myobj.data.length; i=i+500) {
+        const x = i / myobj.data.length * canvas.width;
+        const y = ((myobj.data[i] + 1) / 2 * (canvas.height - topOffset - bottomOffset)) + topOffset;
+        ctx.lineTo(x, y);
+      }
+
+      // Stroke the path immediately after drawing it
+      ctx.stroke();
+
+
+
+      ctx.fillStyle = 'red';
+
+ctx.fillRect(buttonX1, buttonY1, buttonWidth1, buttonHeight1);
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX2, buttonY2, buttonWidth2, buttonHeight2);
+ctx.fillRect(buttonX3, buttonY3, buttonWidth3, buttonHeight3);
+ctx.fillRect(buttonX4, buttonY4, buttonWidth4, buttonHeight4);
+ctx.fillRect(buttonX5, buttonY5, buttonWidth5, buttonHeight5);
+ctx.fillRect(buttonX6, buttonY6, buttonWidth6, buttonHeight6);
+
+
+
+
+ctx.fillStyle = 'white';
+ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+ctx.font = "16px Arial";
+ctx.fillText("Play",30,25);
+ctx.fillText("Stop",105,25);
+ctx.fillText("Trim",180,25);
+ctx.fillText("Cut",255,25);
+ctx.fillText("Export",320,25);
+const centerX = buttonX + buttonWidth / 2;
+const centerY = buttonY + buttonHeight / 2;
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(centerX - buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX + buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.moveTo(centerX + buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX - buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.stroke();
+
+
+
+    
+}
+
+else{
+    console.log("cannot Trim audio");
+}
+    
+}
+
+counter++;
+}
+}
+
+
+else if (x > buttonX6 && x < buttonX6 + buttonWidth6 && y > buttonY6 && y < buttonY6 + buttonHeight6){
+
+ctx.fillStyle="black";
+ctx.globalAlpha = 1;
+    ctx.fillText("exporting is in progress", 300, 140)
+    var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id){
+
+    const obj ={
+    
+    data: myobj.data,
+    samplerate: audiocontext.sampleRate
+
+}
+
+if (myobj.data.length>0){
+
+
+    var  w = new Worker("worker.js");
+w.postMessage(obj);
+
+w.onmessage = function(event) {
+const result = event.data;
+const blob = new Blob(result, { type: "audio/mp3" });
+const audioURL = window.URL.createObjectURL(blob);
+var a = document.createElement("a");
+a.href = audioURL;
+a.download = "downloaded.mp3";
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+};
+
+
+}
+
+
+
+}
+
+counter++;
+
+}
+
+
+}
+
+else {
+
+  
+
+    
+
+
+
+
+    
+  
+
+
+
+}
+});
+
+
+
+canvas.addEventListener("mousedown", function(event){
+
+
+
+
+
+    
+
+    const x1 = event.pageX - canvas.offsetLeft;
+const y1 = event.pageY - canvas.offsetTop;
+
+
+if (x1 > buttonX1 && x1 < buttonX1 + buttonWidth1 && y1 > buttonY1 && y1 < buttonY1 + buttonHeight1){
+
+}
+else{
+isDrawing = true;
+    startX = event.clientX - canvas.offsetLeft;
+    startY = event.clientY - canvas.offsetTop;
+
+const rect = canvas.getBoundingClientRect();
+const x = event.clientX - rect.left;
+const y = event.clientY - rect.top;
+
+
+var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id){
+    
+     valueIndexstart = Math.floor(x / canvas.width * myobj.data.length);
+     myobj.valueindexstart = valueIndexstart;
+     wavearray[counter] = myobj;
+
+     ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+
+       
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+
+      const topOffset = 50;
+      const bottomOffset = 10;
+      for (let i = 0; i < myobj.data.length; i=i+500) {
+        const x = i / myobj.data.length * canvas.width;
+        const y = ((myobj.data[i] + 1) / 2 * (canvas.height - topOffset - bottomOffset)) + topOffset;
+        ctx.lineTo(x, y);
+      }
+
+      // Stroke the path immediately after drawing it
+      ctx.stroke();
+
+
+
+      ctx.fillStyle = 'red';
+
+ctx.fillRect(buttonX1, buttonY1, buttonWidth1, buttonHeight1);
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX2, buttonY2, buttonWidth2, buttonHeight2);
+ctx.fillRect(buttonX3, buttonY3, buttonWidth3, buttonHeight3);
+ctx.fillRect(buttonX4, buttonY4, buttonWidth4, buttonHeight4);
+ctx.fillRect(buttonX5, buttonY5, buttonWidth5, buttonHeight5);
+ctx.fillRect(buttonX6, buttonY6, buttonWidth6, buttonHeight6);
+
+
+
+
+ctx.fillStyle = 'white';
+ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+ctx.font = "16px Arial";
+ctx.fillText("Play",30,25);
+ctx.fillText("Stop",105,25);
+ctx.fillText("Trim",180,25);
+ctx.fillText("Cut",255,25);
+ctx.fillText("Export",320,25);
+const centerX = buttonX + buttonWidth / 2;
+const centerY = buttonY + buttonHeight / 2;
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(centerX - buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX + buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.moveTo(centerX + buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX - buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.stroke();
+
+
+
+
+
+}
+
+counter++;
+}
+}
+
+})
+
+
+
+canvas.addEventListener("mousemove", (event) => {
+        if (!isDrawing) {
+          return;
+        }
+
+        const rect = canvas.getBoundingClientRect();
+const x = event.clientX - rect.left;
+const y = event.clientY - rect.top;
+
+
+
+var myobj1;
+
+var valueindexstart;
+
+        if(isDrawing ===true){
+
+
+            var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id){
+
+   
+
+     myobj.isselected = true;
+     wavearray[counter] = myobj;
+
+     myobj1 = myobj;
+     
+}
+
+counter++;
+}
+
+
+valueIndexend = Math.floor(x / canvas.width * myobj1.data.length);
+var valueindexstart = myobj1.valueindexstart/audiocontext.sampleRate
+var valueindexend = valueIndexend/audiocontext.sampleRate;
+
+
+
+
+
+        }
+
+       
+
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 1;
+
+       
+
+        for (const myobj of wavearray) {
+            var id = `"${myobj.id}"`
+    if (id === event.target.id) {
+      ctx.beginPath();
+      ctx.moveTo(0, canvas.height / 2);
+
+      const topOffset = 50;
+      const bottomOffset = 10;
+      for (let i = 0; i < myobj.data.length; i=i+500) {
+        const x = i / myobj.data.length * canvas.width;
+        const y = ((myobj.data[i] + 1) / 2 * (canvas.height - topOffset - bottomOffset)) + topOffset;
+        ctx.lineTo(x, y);
+      }
+
+      // Stroke the path immediately after drawing it
+      ctx.stroke();
+    }
+  }
+
+
+
+  ctx.fillStyle = 'red';
+
+ctx.fillRect(buttonX1, buttonY1, buttonWidth1, buttonHeight1);
+ctx.fillStyle = 'blue';
+ctx.fillRect(buttonX2, buttonY2, buttonWidth2, buttonHeight2);
+ctx.fillRect(buttonX3, buttonY3, buttonWidth3, buttonHeight3);
+ctx.fillRect(buttonX4, buttonY4, buttonWidth4, buttonHeight4);
+ctx.fillRect(buttonX5, buttonY5, buttonWidth5, buttonHeight5);
+ctx.fillRect(buttonX6, buttonY6, buttonWidth6, buttonHeight6);
+
+
+
+
+ctx.fillStyle = 'white';
+ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
+
+ctx.font = "16px Arial";
+ctx.fillStyle="white";
+
+var fixed = valueindexstart.toFixed(3);
+var fixed1 = valueindexend.toFixed(3);
+
+ctx.fillText(`Start: ${fixed}`, 400, 30);
+ctx.fillText(`End: ${fixed1}`, 525, 30);
+ctx.fillText("Play",30,25);
+ctx.fillText("Stop",105,25);
+ctx.fillText("Trim",180,25);
+ctx.fillText("Cut",255,25);
+ctx.fillText("Export",320,25);
+const centerX = buttonX + buttonWidth / 2;
+const centerY = buttonY + buttonHeight / 2;
+ctx.strokeStyle = 'red';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.moveTo(centerX - buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX + buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.moveTo(centerX + buttonWidth / 4, centerY - buttonHeight / 4);
+ctx.lineTo(centerX - buttonWidth / 4, centerY + buttonHeight / 4);
+ctx.stroke();
+
+        endX = event.clientX - canvas.offsetLeft;
+        endY = event.clientY - canvas.offsetTop;
+
+        const width = endX - startX;
+        const height = endY - startY;
+        ctx.fillStyle = "red";
+      ctx.globalAlpha = 0.3;
+
+        ctx.fillRect(startX, 40, width, canvas.height);
+    })
+
+
+    canvas.addEventListener("mouseup", function(event){
+
+        const x1 = event.pageX - canvas.offsetLeft;
+const y1 = event.pageY - canvas.offsetTop;
+
+        if (x1 > buttonX1 && x1 < buttonX1 + buttonWidth1 && y1 > buttonY1 && y1 < buttonY1 + buttonHeight1){
+
+}
+
+else{
+
+
+
+isDrawing = false;
+
+const rect = canvas.getBoundingClientRect();
+const x = event.clientX - rect.left;
+const y = event.clientY - rect.top;
+
+
+var counter = 0;
+while(counter<wavearray.length){
+var myobj = wavearray[counter];
+var id = `"${myobj.id}"`;
+
+
+
+if (id === event.target.id){
+
+    valueIndexend = Math.floor(x / canvas.width * myobj.data.length);
+     myobj.valueindexend = valueIndexend;
+     wavearray[counter] = myobj;
+}
+
+counter++;
+}
+}
+
+})
+
+
+
+}
+
+
+
+}
+
+
+
+
+}
+
+
+function cleardata(){
+    if (source){
+        source.stop();
+    }
+    clearInterval(intervalid);
+
+    array = null;
+    time = 0;
+
+    document.getElementById("timer").innerHTML = '';
+    document.getElementById("duration").innerHTML = "";
+    document.getElementById("totallength").innerHTML="";
+    document.getElementById("selectedlength").innerHTML = "";
+}
+
+
+function exportwave(){
+
+
+}
+    </script>
+</body>
+</html>

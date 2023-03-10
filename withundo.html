@@ -8,15 +8,16 @@
     perform audio files merging/joining, trimming and cutting audio. You can also undo previous work.">
     <script defer src="/_vercel/insights/script.js"></script>
     <script src="https://unpkg.com/wavesurfer.js"></script>
-    <script src="wufile.js"></script>
+    <script src="file.js"></script>
     <script src="play.js"></script>
-    <script src="wutrim.js"></script>
-    <script src="wucut.js"></script>
+    <script src="trim.js"></script>
+    <script src="cut.js"></script>
     <script src="export.js"></script>
-    <script src="wugeneratewave.js"></script>
+    <script src="generatewave.js"></script>
+    <script src="undo.js"></script>
     
     <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Free Online Audio Editor</title>
+    <title>Free Audio Editor with Undo Feature</title>
 </head>
 <body>
     <div id = "navbarmain">
@@ -32,7 +33,7 @@
     <button class="button1" onclick="exportdata()">Export</button>
 </div>
 </div>
-    <h1>Free Online Audio Editor</h1>
+    <h1>Online Audio Editor with Undo Feature || Press "z" to Undo</h1>
     <input  id = "file" type="file" onchange="myFunction()"/>
     <br/>
     <span id="status"></span>
@@ -62,6 +63,7 @@
 <button class="button2" id ="trim1" onclick="trim()">Trim</button>
 <button class="button2" id="cut1" onclick="cut()">Cut</button>
 <button class="button2" id="generatewave" onclick="generatewave()">Generate Waveform</button>
+<button class="button2" id="undo" onclick="undodata()">Undo</button>
 <button class="button2" id="exportdata1" onclick="exportdata()">Export</button>
     </div>
     <div id ="information">
@@ -71,8 +73,7 @@
         and ending points. For instance, if you want to Play, Cut or Trim the audio from the 
         10th to the 20th second, simply input "10" as the starting point and "20" 
         as the ending point, and then click the "Play, Cut or Trim" button. Just export the file by clicking 
-        on "Export button" in MP3 format after you finish editing.  This editor does not have undo Feature. If you want to use editor 
-        with undo feature click on "With Undo Feature" at the top.
+        on "Export button" in MP3 format after you finish editing.  
         Every thing is done in JavaScript so you may dont need internet to use this app.
     </p>
 </div>
@@ -91,6 +92,7 @@
 <button class="button" id ="stop" onclick="stop()">Stop</button>
 <button class="button" id ="trim1" onclick="trim()">Trim</button>
 <button class="button" id="cut1" onclick="cut()">Cut</button>
+<button class="button" id="undo" onclick="undodata()">Undo</button>
 <button class="button" id="generatewave" onclick="generatewave()">Generate Waveform</button>
 
 
@@ -132,10 +134,58 @@ After providing the starting and ending points, you have two options: trim or cu
         var check = null;
         var sourcecheck = null;
         var sourceduration = 0;
+        
+        var undo=[];
 
 
 
-      
+        
+        document.addEventListener("keydown", function(event) {
+if (event.key === "z"){
+
+   
+
+    
+
+    document.getElementById("error").innerHTML = "";
+    if (undo.length >0){
+
+        if (source){
+    source.stop()
+}
+
+clearInterval(intervalid);
+time = 0;
+
+array = undo[undo.length-1];
+undo.pop();
+
+
+document.getElementById("totallength").innerHTML=array.length;
+source = audiocontext.createBufferSource();
+var array1 = new Float32Array(array);
+var audiobuffer = audiocontext.createBuffer(1, array.length, audiocontext.sampleRate);
+var ab1=  audiobuffer.getChannelData(0);
+ab1.set(array);
+
+source.buffer=audiobuffer;
+source.connect(audiocontext.destination);
+source.start(0);
+sourceduration = source.buffer.duration;
+document.getElementById("duration").innerHTML = source.buffer.duration;
+if ( source.buffer.duration >=1){
+intervalid =   setInterval(()=>{
+time++;
+document.getElementById("timer").innerHTML = time;
+if (time === parseInt(source.buffer.duration)){
+clearInterval(intervalid);
+}
+}, 1000);
+}
+
+}
+}
+});
        
         function keydownfun(){
 
